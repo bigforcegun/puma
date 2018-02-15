@@ -67,6 +67,10 @@ module Puma
       @stdout.puts format(str)
     end
 
+    def log_error(str)
+      @stderr.puts format(str)
+    end
+
     def write(str)
       @stdout.write format(str)
     end
@@ -78,7 +82,7 @@ module Puma
     # Write +str+ to +@stderr+
     #
     def error(str)
-      @stderr.puts format("ERROR: #{str}")
+      log_error "ERROR: #{str}"
       exit 1
     end
 
@@ -91,7 +95,7 @@ module Puma
     # parsing exception.
     #
     def parse_error(server, env, error)
-      @stderr.puts "#{Time.now}: HTTP parse error, malformed request (#{env[HTTP_X_FORWARDED_FOR] || env[REMOTE_ADDR]}): #{error.inspect}\n---\n"
+      log_error "#{Time.now}: HTTP parse error, malformed request (#{env[HTTP_X_FORWARDED_FOR] || env[REMOTE_ADDR]}): #{error.inspect}\n---\n"
     end
 
     # An SSL error has occurred.
@@ -100,7 +104,7 @@ module Puma
     #
     def ssl_error(server, peeraddr, peercert, error)
       subject = peercert ? peercert.subject : nil
-      @stderr.puts "#{Time.now}: SSL error, peer: #{peeraddr}, peer cert: #{subject}, #{error.inspect}"
+      log_error "#{Time.now}: SSL error, peer: #{peeraddr}, peer cert: #{subject}, #{error.inspect}"
     end
 
     # An unknown error has occurred.
@@ -118,7 +122,7 @@ module Puma
           string_block = [ "#{Time.now}: #{kind} error: #{error.inspect}" ]
         end
         string_block << error.backtrace
-        @stderr.puts string_block.join("\n")
+        log_error string_block.join("\n")
       end
     end
 

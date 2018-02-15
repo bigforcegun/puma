@@ -269,7 +269,7 @@ module Puma
         @worker_write << "b#{Process.pid}\n"
       rescue SystemCallError, IOError
         Thread.current.purge_interrupt_queue if Thread.current.respond_to? :purge_interrupt_queue
-        STDERR.puts "Master seems to have exited, exiting."
+        log_error "Master seems to have exited, exiting."
         return
       end
 

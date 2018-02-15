@@ -181,8 +181,10 @@ module Puma
         begin
           @app.call env, client.to_io
         rescue Object => e
-          STDERR.puts "! Detected exception at toplevel: #{e.message} (#{e.class})"
-          STDERR.puts e.backtrace
+          #STDERR.puts "! Detected exception at toplevel: #{e.message} (#{e.class})"
+          #STDERR.puts e.backtrace
+          @events.log "! Detected exception at toplevel"
+          @events.unknown_error self, e, "Rack app"
         end
 
         client.close unless env['detach']
@@ -234,8 +236,10 @@ module Puma
         graceful_shutdown if @status == :stop || @status == :restart
 
       rescue Exception => e
-        STDERR.puts "Exception handling servers: #{e.message} (#{e.class})"
-        STDERR.puts e.backtrace
+        @events.log "Exception handling servers"
+        @events.unknown_error self, e, "Server"
+        #STDERR.puts "Exception handling servers: #{e.message} (#{e.class})"
+        #STDERR.puts e.backtrace
       ensure
         @check.close
         @notify.close
@@ -389,8 +393,10 @@ module Puma
           @reactor.shutdown
         end
       rescue Exception => e
-        STDERR.puts "Exception handling servers: #{e.message} (#{e.class})"
-        STDERR.puts e.backtrace
+        @events.log "Exception handling servers"
+        @events.unknown_error self, e, "Server"
+        #STDERR.puts "Exception handling servers: #{e.message} (#{e.class})"
+        #STDERR.puts e.backtrace
       ensure
         @check.close
         @notify.close

@@ -23,6 +23,10 @@ module Puma
       @events.log str
     end
 
+    def log_error(str)
+      @events.log_error str
+    end
+
     def before_restart
       @control.stop(true) if @control
     end
@@ -113,7 +117,7 @@ module Puma
 
         STDOUT.reopen stdout, (append ? "a" : "w")
         STDOUT.sync = true
-        STDOUT.puts "=== puma startup: #{Time.now} ==="
+        log "=== puma startup: #{Time.now} ==="
       end
 
       if stderr
@@ -123,7 +127,7 @@ module Puma
 
         STDERR.reopen stderr, (append ? "a" : "w")
         STDERR.sync = true
-        STDERR.puts "=== puma startup: #{Time.now} ==="
+        log_error "=== puma startup: #{Time.now} ==="
       end
     end
 

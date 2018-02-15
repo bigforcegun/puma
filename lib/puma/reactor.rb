@@ -30,8 +30,10 @@ module Puma
         rescue IOError => e
           Thread.current.purge_interrupt_queue if Thread.current.respond_to? :purge_interrupt_queue
           if sockets.any? { |socket| socket.closed? }
-            STDERR.puts "Error in select: #{e.message} (#{e.class})"
-            STDERR.puts e.backtrace
+            @events.log "Error in select"
+            @events.unknown_error self, e, "Reactor"
+            # STDERR.puts "Error in select: #{e.message} (#{e.class})"
+            # STDERR.puts e.backtrace
             sockets = sockets.reject { |socket| socket.closed? }
             retry
           else
@@ -153,8 +155,10 @@ module Puma
         begin
           run_internal
         rescue StandardError => e
-          STDERR.puts "Error in reactor loop escaped: #{e.message} (#{e.class})"
-          STDERR.puts e.backtrace
+          @events.log "Error in reactor loop escaped"
+          @events.unknown_error self, e, "Reactor"
+          # STDERR.puts "Error in reactor loop escaped: #{e.message} (#{e.class})"
+          # STDERR.puts e.backtrace
           retry
         ensure
           @trigger.close
